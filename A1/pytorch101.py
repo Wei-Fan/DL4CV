@@ -24,7 +24,10 @@ def create_sample_tensor():
   #                    TODO: Implement this function                          #
   #############################################################################
   # Replace "pass" statement with your code
-  pass
+  x = torch.zeros(3,2)
+  x[0,1] = 10
+  x[1,0] = 100
+  print(x)
   #############################################################################
   #                            END OF YOUR CODE                               #
   #############################################################################
@@ -58,7 +61,8 @@ def mutate_tensor(x, indices, values):
   #                    TODO: Implement this function                          #
   #############################################################################
   # Replace "pass" statement with your code
-  pass
+  for i in range(len(values)):
+    x[indices[i]] = values[i]
   #############################################################################
   #                            END OF YOUR CODE                               #
   #############################################################################
