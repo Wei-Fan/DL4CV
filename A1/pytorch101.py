@@ -91,7 +91,12 @@ def count_tensor_elements(x):
   #   You CANNOT use the built-in functions torch.numel(x) or x.numel().      #
   #############################################################################
   # Replace "pass" statement with your code
-  pass
+  if x.shape[0] == 0:
+    num_elements = 0
+  else:
+    num_elements = 1
+    for i in range(len(x.shape)):
+      num_elements *= x.shape[i]
   #############################################################################
   #                            END OF YOUR CODE                               #
   #############################################################################
@@ -113,7 +118,9 @@ def create_tensor_of_pi(M, N):
   #       TODO: Implement this function. It should take one line.             #
   #############################################################################
   # Replace "pass" statement with your code
-  pass
+  pi = 3.14
+  x = torch.ones(M,N)
+  x = torch.mul(x, pi)
   #############################################################################
   #                            END OF YOUR CODE                               #
   #############################################################################
@@ -138,7 +145,16 @@ def multiples_of_ten(start, stop):
   #                    TODO: Implement this function                          #
   #############################################################################
   # Replace "pass" statement with your code
-  pass
+  start = (start // 10 + 1) * 10
+  stop = (stop // 10) * 10
+  if start > stop:
+    x = torch.tensor([], dtype=torch.float64)
+  else:
+    size = (stop - start) // 10 + 1
+    x = torch.ones(size, dtype=torch.float64)
+    for i in range(size):
+      x[i] *= start + i*10
+
   #############################################################################
   #                            END OF YOUR CODE                               #
   #############################################################################
