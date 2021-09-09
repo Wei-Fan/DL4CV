@@ -59,7 +59,10 @@ def compute_distances_two_loops(x_train, x_test):
   # functions from torch.nn or torch.nn.functional.                            #
   ##############################################################################
   # Replace "pass" statement with your code
-  pass
+  for i in x_train:
+    for j in x_test:
+
+      
   ##############################################################################
   #                             END OF YOUR CODE                               #
   ##############################################################################
