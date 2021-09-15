@@ -46,3 +46,30 @@ implement
 '''
 dists = compute_distances_two_loops(x_train, x_test)
 print('dists has shape: ', dists.shape)
+
+
+x_train_rand = torch.randn(100, 3, 16, 16, dtype=torch.float64)
+x_test_rand = torch.randn(100, 3, 16, 16, dtype=torch.float64)
+
+dists_one = compute_distances_one_loop(x_train_rand, x_test_rand)
+dists_two = compute_distances_two_loops(x_train_rand, x_test_rand)
+difference = (dists_one - dists_two).pow(2).sum().sqrt().item()
+print('Difference: ', difference)
+if difference < 1e-4:
+    print('Good! The distance matrices match')
+else:
+    print('Uh-oh! The distance matrices are different')
+
+x_train_rand = torch.randn(200, 3, 16, 16, dtype=torch.float64)
+x_test_rand = torch.randn(100, 3, 16, 16, dtype=torch.float64)
+
+dists_two = compute_distances_two_loops(x_train_rand, x_test_rand)
+dists_none = compute_distances_no_loops(x_train_rand, x_test_rand)
+print(dists_two.shape)
+print(dists_none.shape)
+difference = (dists_two - dists_none).pow(2).sum().sqrt().item()
+print('Difference: ', difference)
+if difference < 1e-4:
+  print('Good! The distance matrices match')
+else:
+  print('Uh-oh! The distance matrices are different')

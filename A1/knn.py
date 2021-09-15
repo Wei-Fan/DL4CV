@@ -59,10 +59,9 @@ def compute_distances_two_loops(x_train, x_test):
   # functions from torch.nn or torch.nn.functional.                            #
   ##############################################################################
   # Replace "pass" statement with your code
-  for i in x_train:
-    for j in x_test:
-
-      
+  for i in range(num_train):
+    for j in range(num_test):
+      dists[i,j] = torch.sum(torch.square(x_train[i] - x_test[j]))
   ##############################################################################
   #                             END OF YOUR CODE                               #
   ##############################################################################
@@ -105,7 +104,10 @@ def compute_distances_one_loop(x_train, x_test):
   # functions from torch.nn or torch.nn.functional.                            #
   ##############################################################################
   # Replace "pass" statement with your code
-  pass
+  x_train = x_train.reshape(num_train, -1)
+  x_test = x_test.reshape(num_test, -1)
+  for i in range(num_train):
+    dists[i] = torch.sum((x_test - x_train[i])**2, 1).t()
   ##############################################################################
   #                             END OF YOUR CODE                               #
   ##############################################################################
@@ -154,7 +156,11 @@ def compute_distances_no_loops(x_train, x_test):
   #       and a matrix multiply.                                               #
   ##############################################################################
   # Replace "pass" statement with your code
-  pass
+  x_train = x_train.reshape(num_train, -1)
+  x_test = x_test.reshape(num_test, -1)
+
+  dists = torch.sum(x_test**2, 1).reshape(1,-1) + torch.sum(x_train**2, 1).reshape(-1,1) - \
+    2 * torch.mm(x_train, x_test.t())
   ##############################################################################
   #                             END OF YOUR CODE                               #
   ##############################################################################
