@@ -13,6 +13,7 @@
 *.swp
 *.pyc
 *.bag
+*.tar.gz
 
 # Ignore build, devel, and logs folder
 build
@@ -22,3 +23,4 @@ __pycache__
 .catkin_tools
 .catkin_workspace
 .vscode
+cifar-*
