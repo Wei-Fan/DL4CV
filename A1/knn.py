@@ -200,7 +200,10 @@ def predict_labels(dists, y_train, k=1):
   # samples. Hint: Look up the function torch.topk                             #
   ##############################################################################
   # Replace "pass" statement with your code
-  pass
+  for i in range(num_test):
+    vals, indx = torch.topk(dists[:,i], k, largest=False)
+    vals, cnt_indx = y_train[indx].unique(return_counts=True)
+    y_pred[i] = vals[cnt_indx.argmax()]
   ##############################################################################
   #                             END OF YOUR CODE                               #
   ##############################################################################
@@ -222,7 +225,8 @@ class KnnClassifier:
     # computation and simply memorize the training data.                      #
     ###########################################################################
     # Replace "pass" statement with your code
-    pass
+    self.x_train_ = x_train
+    self.y_train_ = y_train
     ###########################################################################
     #                           END OF YOUR CODE                              #
     ###########################################################################
@@ -246,7 +250,8 @@ class KnnClassifier:
     # output labels.
     ###########################################################################
     # Replace "pass" statement with your code
-    pass
+    dists = compute_distances_no_loops(self.x_train_, x_test)
+    y_test_pred = predict_labels(dists, self.y_train_, k=k)
     ###########################################################################
     #                           END OF YOUR CODE                              #
     ###########################################################################
@@ -308,7 +313,8 @@ def knn_cross_validate(x_train, y_train, num_folds=5, k_choices=None):
   # Hint: torch.chunk                                                          #
   ##############################################################################
   # Replace "pass" statement with your code
-  pass
+  x_train_folds = torch.chunk(x_train, num_folds)
+  y_train_folds = torch.chunk(y_train, num_folds)
   ##############################################################################
   #                            END OF YOUR CODE                                #
   ##############################################################################
@@ -327,7 +333,16 @@ def knn_cross_validate(x_train, y_train, num_folds=5, k_choices=None):
   # values in k in k_to_accuracies.   HINT: torch.cat                          #
   ##############################################################################
   # Replace "pass" statement with your code
-  pass
+  for k in k_choices:
+    k_to_accuracies[k] = []
+    for i in range(num_folds):
+      fx_test = x_train_folds[i]
+      fy_test = y_train_folds[i]
+      fx_train = torch.cat([x_train_folds[j] for j in range(num_folds) if i != j])
+      fy_train = torch.cat([y_train_folds[j] for j in range(num_folds) if i != j])
+      classifier = KnnClassifier(fx_train, fy_train)
+      acc = classifier.check_accuracy(fx_test, fy_test, k=k, quiet=True)
+      k_to_accuracies[k].append(acc)
   ##############################################################################
   #                            END OF YOUR CODE                                #
   ##############################################################################
@@ -357,7 +372,11 @@ def knn_get_best_k(k_to_accuracies):
   # the value of k that has the highest mean accuracy accross all folds.       #
   ##############################################################################
   # Replace "pass" statement with your code
-  pass
+  means = []
+  for k, accs in sorted(k_to_accuracies.items()):
+    means.append(statistics.mean(accs))
+
+  best_k = sorted(k_to_accuracies.items()) [(torch.argmax(torch.tensor(means))).item()][0]
   ##############################################################################
   #                            END OF YOUR CODE                                #
   ##############################################################################
