@@ -116,7 +116,9 @@ def nn_forward_pass(params, X):
     # shape (N, C).                                                            #
     ############################################################################
     # Replace "pass" statement with your code
-    pass
+    dtype = X.dtype
+    hidden = torch.max(torch.FloatTensor([0]).to(dtype).cuda(), (X.mm(W1)+b1.reshape(1, -1)).to(dtype))
+    scores = hidden.mm(W2) + b2.reshape(1, -1)
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
@@ -176,7 +178,16 @@ def nn_forward_backward(params, X, y=None, reg=0.0):
     # (Check Numeric Stability in http://cs231n.github.io/linear-classify/).   #
     ############################################################################
     # Replace "pass" statement with your code
-    pass
+    maximum_score = torch.max(scores, 1)[0].reshape(-1, 1)
+    scores -= maximum_score
+    out = torch.exp(scores)
+    scores_sums = torch.sum(out, 1).reshape(N, 1)
+    out /= scores_sums
+    index_right_cls = (range(N), y)
+    correct_scores = out[index_right_cls]
+    loss = -1 * torch.sum(torch.log(correct_scores))
+    loss /= N
+    loss += reg * (torch.sum(W1 ** 2) + torch.sum(W2 ** 2))
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
@@ -190,7 +201,19 @@ def nn_forward_backward(params, X, y=None, reg=0.0):
     # tensor of same size                                                     #
     ###########################################################################
     # Replace "pass" statement with your code
-    pass
+    dl_dout = out.clone()
+    dl_dout[range(N), y] -= 1
+    dW2 = h1.t().mm(dl_dout)
+    db2 = torch.sum(dl_dout, 0)
+    dh1 = dl_dout.mm(W2.t())
+    dh1[h1 == 0] = 0
+    dW1 = X.t().mm(dh1)
+    db1 = torch.sum(dh1, 0)
+
+    grads['W2'] = dW2/N + 2 * reg * W2
+    grads['b2'] = db2/N
+    grads['W1'] = dW1/N + 2 * reg * W1
+    grads['b1'] = db1/N
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
