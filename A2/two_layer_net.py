@@ -283,7 +283,10 @@ def nn_train(params, loss_func, pred_func, X, y, X_val, y_val,
     # stored in the grads dictionary defined above.                         #
     #########################################################################
     # Replace "pass" statement with your code
-    pass
+    params['W2'] -= learning_rate * grads['W2']
+    params['b2'] -= learning_rate * grads['b2']
+    params['W1'] -= learning_rate * grads['W1']
+    params['b1'] -= learning_rate * grads['b1']
     #########################################################################
     #                             END OF YOUR CODE                          #
     #########################################################################
@@ -339,7 +342,10 @@ def nn_predict(params, loss_func, X):
   # TODO: Implement this function; it should be VERY simple!                #
   ###########################################################################
   # Replace "pass" statement with your code
-  pass
+  z = X.mm(params['W1']) + params['b1']
+  h = torch.max(z, torch.tensor([0.0]).cuda())
+  out = h.mm(params['W2']) + params['b2']
+  y_pred = torch.argmax(out, 1)
   ###########################################################################
   #                              END OF YOUR CODE                           #
   ###########################################################################
@@ -374,7 +380,10 @@ def nn_get_search_params():
   # classifier.                                                             #
   ###########################################################################
   # Replace "pass" statement with your code
-  pass
+  learning_rates = [1e-4, 1e-3]
+  hidden_sizes = [16, 32, 64, 128]
+  regularization_strengths = [1e0, 1e1]
+  learning_rate_decays = [0.99, 0.98, 0.95]
   ###########################################################################
   #                           END OF YOUR CODE                              #
   ###########################################################################
