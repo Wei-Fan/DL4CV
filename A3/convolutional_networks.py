@@ -801,7 +801,15 @@ class BatchNorm(object):
       # might prove to be helpful.                                          #
       #######################################################################
       # Replace "pass" statement with your code
-      pass
+      mu = torch.mean(x, 0)
+      var = 1. / N * torch.sum((x - mu) ** 2, 0)
+      x_hat = (x - mu) / ((var + eps)**(1/2))
+      y = gamma * x_hat + beta
+      out = y
+      running_mean = momentum * running_mean + (1 - momentum) * mu
+      running_var = momentum * running_var + (1 - momentum) * var
+
+      cache = (x_hat, mu, var, eps, gamma, beta, x)
       #######################################################################
       #                           END OF YOUR CODE                          #
       #######################################################################
@@ -813,7 +821,9 @@ class BatchNorm(object):
       # Store the result in the out variable.                               #
       #######################################################################
       # Replace "pass" statement with your code
-      pass
+      x_hat = (x - running_mean) / ((running_var + eps)**(1/2))
+      y = gamma * x_hat + beta
+      out = y
       #######################################################################
       #                           END OF YOUR CODE                          #
       #######################################################################
@@ -853,7 +863,22 @@ class BatchNorm(object):
     # Don't forget to implement train and test mode separately.               #
     ###########################################################################
     # Replace "pass" statement with your code
-    pass
+    x_hat, mu, var, eps, gamma, beta, x = cache
+    N, D = dout.shape
+
+    dbeta = torch.sum(dout, 0)
+    dgamma = torch.sum(dout * x_hat, 0)
+
+    dx_hat = dout * gamma
+    dxmu1 = dx_hat * 1 / (var + eps)**(1/2)
+    divar = torch.sum(dx_hat * (x - mu), 0)
+    dvar = divar * -1 / 2 * (var + eps) ** (-3/2)
+    dsq = 1 / N * torch.ones((N, D)).to(x.dtype).to(x.device) * dvar
+    dxmu2 = 2 * (x - mu) * dsq
+    dx1 = dxmu1 + dxmu2
+    dmu = -1 * torch.sum(dxmu1 + dxmu2, 0)
+    dx2 = 1 / N * torch.ones((N, D)).to(x.dtype).to(x.device) * dmu
+    dx = dx1 + dx2
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
@@ -866,9 +891,9 @@ class BatchNorm(object):
     Alternative backward pass for batch normalization.
     For this implementation you should work out the derivatives for the batch
     normalizaton backward pass on paper and simplify as much as possible. You
-    should be able to derive a simple expression for the backward pass. 
+    should be able to derive a simple expression for the backward pass.
     See the jupyter notebook for more hints.
-    
+
     Note: This implementation should expect to receive the same cache variable
     as batchnorm_backward, but might not use all of the values in the cache.
 
@@ -884,7 +909,11 @@ class BatchNorm(object):
     # single statement; our implementation fits on a single 80-character line.#
     ###########################################################################
     # Replace "pass" statement with your code
-    pass
+    (x_hat, mu, var, eps, gamma, beta, x), N = cache, dout.shape[0]
+    dbeta = dout.sum(0)
+    dgamma = (dout * x_hat).sum(0)
+    dx = (dout * gamma - (dout * gamma).sum(0)/N -
+          (dout * gamma * x_hat).sum(0) * x_hat/N)/var**(1/2)
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
@@ -927,7 +956,10 @@ class SpatialBatchNorm(object):
     # Your implementation should be very short; ours is less than five lines. #
     ###########################################################################
     # Replace "pass" statement with your code
-    pass
+    N, C, H, W = x.shape
+    x = x.permute(0, 2, 3, 1).reshape(N*H*W, C)
+    out, cache = BatchNorm.forward(x, gamma, beta, bn_param)
+    out = out.reshape(N, H, W, C).permute(0, 3, 1, 2)
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
@@ -956,7 +988,10 @@ class SpatialBatchNorm(object):
     # Your implementation should be very short; ours is less than five lines. #
     ###########################################################################
     # Replace "pass" statement with your code
-    pass
+    N, C, H, W = dout.shape
+    dout = dout.permute(0, 2, 3, 1).reshape(N*H*W, C)
+    dx, dgamma, dbeta = BatchNorm.backward_alt(dout, cache)
+    dx = dx.reshape(N, H, W, C).permute(0, 3, 1, 2)
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
