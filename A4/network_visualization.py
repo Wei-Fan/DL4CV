@@ -36,7 +36,7 @@ def compute_saliency_maps(X, y, model):
   """
   # Make input tensor require gradient
   X.requires_grad_()
-  
+
   saliency = None
   ##############################################################################
   # TODO: Implement this function. Perform a forward and backward pass through #
